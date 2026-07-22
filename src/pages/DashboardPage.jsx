@@ -34,6 +34,7 @@ import {
   MessageSquare,
 } from "lucide-react"
 import { taskApi, projectApi, moduleApi } from "@/services/api"
+import ConfirmModal from "@/components/ConfirmModal"
 
 /* ═══════════════════════════════════════════════════════
    CONSTANTS
@@ -943,8 +944,16 @@ export default function DashboardPage() {
     }
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this task?")) return
+  const [deleteTargetId, setDeleteTargetId] = React.useState(null)
+
+  const askDelete = (id) => {
+    setDeleteTargetId(id)
+  }
+
+  const confirmDelete = async () => {
+    if (!deleteTargetId) return
+    const id = deleteTargetId
+    setDeleteTargetId(null)
 
     // 1. Optimistic Local Delete
     setAllTasks((prev) => ({
@@ -1047,7 +1056,7 @@ export default function DashboardPage() {
           tasks={dayTasks}
           onAdd={openAdd}
           onEdit={openEdit}
-          onDelete={handleDelete}
+          onDelete={askDelete}
           onExport={handleExport}
         />
       </div>
@@ -1059,6 +1068,15 @@ export default function DashboardPage() {
         editTask={editTask}
         selectedDate={selectedDate}
         onSave={handleSave}
+      />
+
+      {/* Confirm Action Modal */}
+      <ConfirmModal
+        open={!!deleteTargetId}
+        title="Delete Task"
+        message="Are you sure you want to delete this task? This action cannot be undone."
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTargetId(null)}
       />
     </div>
   )

@@ -2,6 +2,7 @@ import * as React from "react"
 import { Users, Plus, Pencil, Trash2, Search, ShieldCheck, User as UserIcon, X, CheckCircle2 } from "lucide-react"
 import { userApi } from "@/services/api"
 import { useAuth } from "@/context/AuthContext"
+import ConfirmModal from "@/components/ConfirmModal"
 
 export default function UsersPage() {
   const { isAdmin } = useAuth()
@@ -63,8 +64,16 @@ export default function UsersPage() {
     loadUsersList()
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this user account?")) return
+  const [deleteTargetId, setDeleteTargetId] = React.useState(null)
+
+  const askDelete = (id) => {
+    setDeleteTargetId(id)
+  }
+
+  const confirmDelete = async () => {
+    if (!deleteTargetId) return
+    const id = deleteTargetId
+    setDeleteTargetId(null)
     await userApi.deleteUser(id)
     loadUsersList()
   }
@@ -186,7 +195,7 @@ export default function UsersPage() {
                         <Pencil size={13} />
                       </button>
                       <button
-                        onClick={() => handleDelete(u.id)}
+                        onClick={() => askDelete(u.id)}
                         className="h-7 w-7 rounded-lg flex items-center justify-center text-red-600 dark:text-red-400 hover:bg-red-500/15 transition-all"
                         title="Delete User"
                       >
@@ -340,6 +349,14 @@ export default function UsersPage() {
           </div>
         </>
       )}
+      {/* Reusable ConfirmModal */}
+      <ConfirmModal
+        open={!!deleteTargetId}
+        title="Delete User"
+        message="Are you sure you want to delete this user account? This action cannot be undone."
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTargetId(null)}
+      />
     </div>
   )
 }

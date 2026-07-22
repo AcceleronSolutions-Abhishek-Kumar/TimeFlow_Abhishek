@@ -73,7 +73,7 @@ export default function LoginPage() {
   const activeQuote = TIME_QUOTES[quoteIdx]
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[#060810] p-4 sm:p-6 text-white relative overflow-hidden">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-[#060810] p-4 sm:p-6 text-white relative overflow-hidden">
       {/* ── Ambient Background Lighting ───────────────────── */}
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[140px] pointer-events-none animate-pulse" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[140px] pointer-events-none animate-pulse" />
@@ -259,6 +259,11 @@ export default function LoginPage() {
           </form>
 
         </div>
+      </div>
+
+      {/* ── Copyright Footer ────────────────────────────────── */}
+      <div className="mt-8 text-center text-xs text-slate-500 font-semibold tracking-wider relative z-10 select-none">
+        &copy; 2026 Abhishek All rights reserved.
       </div>
     </div>
   )

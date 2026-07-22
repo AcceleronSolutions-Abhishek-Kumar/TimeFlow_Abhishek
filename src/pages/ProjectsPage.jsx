@@ -13,6 +13,7 @@ import {
   Tag,
 } from "lucide-react"
 import { projectApi, moduleApi } from "@/services/api"
+import ConfirmModal from "@/components/ConfirmModal"
 
 export default function ProjectsPage() {
   const [activeTab, setActiveTab] = React.useState("projects") // "projects" | "modules"
@@ -74,12 +75,6 @@ export default function ProjectsPage() {
     loadAll()
   }
 
-  const handleDeleteProject = async (id) => {
-    if (!window.confirm("Delete this project? Associated tasks and modules may be affected.")) return
-    await projectApi.deleteProject(id)
-    loadAll()
-  }
-
   // ── Module Modal Handlers ───────────────────────────────────────────────────
   const openAddModule = () => {
     setEditModule(null)
@@ -112,9 +107,36 @@ export default function ProjectsPage() {
     loadAll()
   }
 
-  const handleDeleteModule = async (id) => {
-    if (!window.confirm("Delete this module?")) return
-    await moduleApi.deleteModule(id)
+  const [deleteTarget, setDeleteTarget] = React.useState(null)
+
+  const askDeleteProject = (id) => {
+    setDeleteTarget({
+      id,
+      type: "project",
+      title: "Delete Project",
+      message: "Are you sure you want to delete this project? Associated tasks and modules may be affected.",
+    })
+  }
+
+  const askDeleteModule = (id) => {
+    setDeleteTarget({
+      id,
+      type: "module",
+      title: "Delete Module",
+      message: "Are you sure you want to delete this module? This action cannot be undone.",
+    })
+  }
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return
+    const { id, type } = deleteTarget
+    setDeleteTarget(null)
+
+    if (type === "project") {
+      await projectApi.deleteProject(id)
+    } else {
+      await moduleApi.deleteModule(id)
+    }
     loadAll()
   }
 
@@ -251,7 +273,7 @@ export default function ProjectsPage() {
                             <Pencil size={13} />
                           </button>
                           <button
-                            onClick={() => handleDeleteProject(p.id)}
+                            onClick={() => askDeleteProject(p.id)}
                             className="h-7 w-7 rounded-lg flex items-center justify-center text-red-600 dark:text-red-400 hover:bg-red-500/15"
                             title="Delete Project"
                           >
@@ -306,7 +328,7 @@ export default function ProjectsPage() {
                             <Pencil size={13} />
                           </button>
                           <button
-                            onClick={() => handleDeleteModule(m.id)}
+                            onClick={() => askDeleteModule(m.id)}
                             className="h-7 w-7 rounded-lg flex items-center justify-center text-red-600 dark:text-red-400 hover:bg-red-500/15"
                             title="Delete Module"
                           >
@@ -668,6 +690,14 @@ export default function ProjectsPage() {
           </div>
         </>
       )}
+      {/* Reusable ConfirmModal */}
+      <ConfirmModal
+        open={!!deleteTarget}
+        title={deleteTarget?.title || "Confirm Delete"}
+        message={deleteTarget?.message || "Are you sure you want to delete this item?"}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   )
 }
